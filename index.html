@@ -136,7 +136,7 @@ const UI = {
     footer:'Atelier ERP · черновик для согласования. <span class="gold">Учтём позже:</span> расходы и полная маржинальность, Telegram-бот приёма заказов, подключение BI/ClickHouse.<br/>© 2026 Selezza London. Все права защищены. Конфиденциально.',
     sections:{
       overview:{h2:"Общий процесс — от заказа до выдачи",lead:"Сквозной путь заказа. Кликните на любой блок, чтобы увидеть подробности справа.",legend:"<b>Цвета:</b> жёлтый — момент брони материалов, зелёный — момент списания со склада."},
-      intake:{h2:"Приём заказа",lead:"Заказы заносятся вручную через форму (в MVP). В будущем — Telegram-бот.",legend:"<b>Важно:</b> срок, № заказа и клиент хранятся на заказе; цена и оплата — на каждой позиции (для аналитики маржи)."},
+      intake:{h2:"Приём заказа",lead:"Заказы попадают автоматически из Shopify по вебхуку. Ручная форма — запасной путь.",legend:"<b>Реальное время:</b> при оформлении заказа на сайте Shopify шлёт вебхук, система проверяет подпись (HMAC) и создаёт заказ. Вручную вводить ничего не нужно."},
       board:{h2:"Доска пошива — движение карточки",lead:"Три колонки: Очередь → В работе → Готово. Швея видит только свои карточки и свободные.",legend:"<b>Защита от гонки:</b> свободную карточку может взять только одна швея. Каждый переход пишется в журнал — отсюда аналитика скорости."},
       materials:{h2:"Жизненный цикл материалов",lead:"Две фазы: бронь при запуске в работу, списание при готовности. «Доступно» = остаток − активные брони.",legend:"<b>Для аналитики:</b> склад — журнал движений, брони — отдельно. Это даёт точную себестоимость материалов в изделии."},
       roles:{h2:"Роли и доступы",lead:"Управление входит через Google-почту, швеи — по короткому PIN. Роли расширяемы.",legend:"<b>Гибкость:</b> роли заданы флагами (управление / распределяет / шьёт), новые роли добавляются без переписывания логики."},
@@ -144,15 +144,15 @@ const UI = {
     },
     defaults:{
       overview:"Выберите шаг на схеме, чтобы увидеть детали.",
-      intake:"Заказы заносятся вручную. Клиент → изделия → цена и оплата → на доску.",
+      intake:"Заказы приходят автоматически из Shopify (вебхук). Ручная форма — запасной путь.",
       board:"Карточка едет по трём колонкам. Переходы пишутся в журнал для аналитики скорости.",
       materials:"Бронь при запуске в работу, списание при готовности. Доступно = остаток − брони.",
       roles:"Управление — вход Google; швеи — PIN. Роли заданы гибкими флагами.",
       messages:"Швея пишет управлению, опционально привязывая сообщение к карточке."
     },
     info:{
-      A:["Откуда приходят заказы","Каналы — Instagram, WhatsApp, телефон, личная встреча. Автоинтеграции в MVP нет: отец заносит заказ сам. Позже — Telegram-бот."],
-      B:["Приём заказа","Простая форма: клиент, срок, список изделий. Для каждого — цена продажи и оплата швее. Это и есть «перехват» заказа в систему."],
+      A:["Откуда приходят заказы","Заказы приходят автоматически из онлайн-магазина Shopify (selezza.co.uk). При оформлении Shopify шлёт вебхук — заказ мгновенно появляется в системе. Ручной ввод остаётся запасным путём."],
+      B:["Автоматический приём","Система проверяет подпись Shopify (HMAC), затем создаёт клиента, заказ и позиции — карточки появляются в «Очереди» без ручного ввода."],
       C:["Позиции = карточки","Каждое изделие в заказе становится отдельной карточкой. Швея работает с карточкой, а не с заказом целиком."],
       D:["Распределение","Два режима: назначить адресно конкретной швее или положить в общий пул, откуда швея берёт сама."],
       G:["В работе + бронь","При запуске в работу материалы бронируются по нормам изделия. Если не хватает — предупреждаем, но не блокируем."],
@@ -169,7 +169,7 @@ const UI = {
     footer:'Atelier ERP · onay için taslak. <span class="gold">Sonra eklenecek:</span> giderler ve tam kârlılık, Telegram sipariş botu, BI/ClickHouse bağlantısı.<br/>© 2026 Selezza London. Tüm hakları saklıdır. Gizlidir.',
     sections:{
       overview:{h2:"Genel süreç — siparişten teslimata",lead:"Siparişin uçtan uca yolu. Detayları görmek için herhangi bir bloğa tıklayın.",legend:"<b>Renkler:</b> sarı — malzeme rezervi anı, yeşil — stoktan düşme anı."},
-      intake:{h2:"Sipariş alımı",lead:"Siparişler form ile elle girilir (MVP). İleride — Telegram botu.",legend:"<b>Önemli:</b> termin, sipariş no ve müşteri siparişte; fiyat ve ücret her kalemde (kâr analitiği için)."},
+      intake:{h2:"Sipariş alımı",lead:"Siparişler Shopify'dan webhook ile otomatik gelir. Elle form yedek yoldur.",legend:"<b>Gerçek zamanlı:</b> sitede sipariş verilince Shopify webhook gönderir, sistem imzayı (HMAC) doğrular ve siparişi oluşturur. Elle giriş gerekmez."},
       board:{h2:"Dikim panosu — kartın hareketi",lead:"Üç sütun: Sırada → Çalışmada → Hazır. Terzi yalnızca kendi ve boştaki kartları görür.",legend:"<b>Yarış koruması:</b> boştaki kartı yalnızca bir terzi alabilir. Her geçiş günlüğe yazılır — hız analitiği buradan gelir."},
       materials:{h2:"Malzeme yaşam döngüsü",lead:"İki aşama: çalışmaya alınca rezerv, bitince stoktan düşme. «Müsait» = stok − aktif rezervler.",legend:"<b>Analitik için:</b> stok bir hareket günlüğü, rezervler ayrı. Bu, üründeki malzeme maliyetini net verir."},
       roles:{h2:"Roller ve erişim",lead:"Yönetim Google e-posta ile, terziler kısa PIN ile giriş yapar. Roller genişletilebilir.",legend:"<b>Esneklik:</b> roller bayraklarla tanımlı (yönetim / atar / diker); yeni roller mantık değişmeden eklenir."},
@@ -177,15 +177,15 @@ const UI = {
     },
     defaults:{
       overview:"Detayları görmek için şemadan bir adım seçin.",
-      intake:"Siparişler elle girilir. Müşteri → ürünler → fiyat ve ücret → panoya.",
+      intake:"Siparişler Shopify'dan otomatik gelir (webhook). Elle form yedektir.",
       board:"Kart üç sütun arasında ilerler. Geçişler hız analitiği için günlüğe yazılır.",
       materials:"Çalışmaya alınca rezerv, bitince stoktan düşme. Müsait = stok − rezervler.",
       roles:"Yönetim — Google girişi; terziler — PIN. Roller esnek bayraklarla tanımlı.",
       messages:"Terzi yönetime yazar, mesajı isteğe bağlı bir karta bağlar."
     },
     info:{
-      A:["Siparişler nereden gelir","Kanallar — Instagram, WhatsApp, telefon, yüz yüze. MVP'de otomatik entegrasyon yok: baba siparişi kendi girer. İleride Telegram botu."],
-      B:["Sipariş alımı","Basit form: müşteri, termin, ürün listesi. Her ürün için satış fiyatı ve terzi ücreti. Siparişin sisteme alınması budur."],
+      A:["Siparişler nereden gelir","Siparişler Shopify mağazasından (selezza.co.uk) otomatik gelir. Sipariş verildiğinde Shopify webhook gönderir — sipariş anında sisteme düşer. Elle giriş yedek yol olarak kalır."],
+      B:["Otomatik alım","Sistem Shopify imzasını (HMAC) doğrular, sonra müşteri, sipariş ve kalemleri oluşturur; kartlar elle giriş olmadan «Sırada» belirir."],
       C:["Kalemler = kartlar","Siparişteki her ürün ayrı bir kart olur. Terzi sipariş bütününü değil kartı işler."],
       D:["Dağıtım","İki mod: doğrudan belirli bir terziye atamak veya terzinin kendi aldığı ortak havuza koymak."],
       G:["Çalışmada + rezerv","Çalışmaya alınca malzemeler ürün normlarına göre rezerve edilir. Yetmezse uyarırız ama engellemeyiz."],
@@ -202,7 +202,7 @@ const UI = {
     footer:'Atelier ERP · draft for review. <span class="gold">Coming later:</span> expenses & full margin, Telegram intake bot, BI/ClickHouse connection.<br/>© 2026 Selezza London. All rights reserved. Confidential.',
     sections:{
       overview:{h2:"Overview — from order to delivery",lead:"The end-to-end path of an order. Click any block to see details on the right.",legend:"<b>Colors:</b> gold — material reservation moment, green — stock write-off moment."},
-      intake:{h2:"Order intake",lead:"Orders are entered manually via a form (MVP). A Telegram bot may come later.",legend:"<b>Note:</b> due date, order no. and client live on the order; price and pay on each item (for margin analytics)."},
+      intake:{h2:"Order intake",lead:"Orders arrive automatically from Shopify via webhook. The manual form is a fallback.",legend:"<b>Real time:</b> on checkout the Shopify store sends a webhook; the system verifies the signature (HMAC) and creates the order. No manual entry needed."},
       board:{h2:"Sewing board — card movement",lead:"Three columns: Queue → In progress → Done. A seamstress sees only her cards and free ones.",legend:"<b>Race safety:</b> a free card can be taken by only one seamstress. Every transition is logged — that powers speed analytics."},
       materials:{h2:"Material lifecycle",lead:"Two phases: reserve when work starts, write-off when done. “Available” = on hand − active reservations.",legend:"<b>For analytics:</b> stock is a movement ledger, reservations are separate. This gives exact material cost per item."},
       roles:{h2:"Roles & access",lead:"Management signs in with Google email, seamstresses with a short PIN. Roles are extensible.",legend:"<b>Flexibility:</b> roles use flags (manage / assign / sew); new roles are added without rewriting logic."},
@@ -210,15 +210,15 @@ const UI = {
     },
     defaults:{
       overview:"Pick a step on the diagram to see details.",
-      intake:"Orders are entered manually. Client → items → price & pay → to the board.",
+      intake:"Orders arrive automatically from Shopify (webhook). Manual form is a fallback.",
       board:"A card moves across three columns. Transitions are logged for speed analytics.",
       materials:"Reserve when work starts, write-off when done. Available = on hand − reservations.",
       roles:"Management — Google login; seamstresses — PIN. Roles use flexible flags.",
       messages:"Seamstress messages management, optionally linking it to a card."
     },
     info:{
-      A:["Where orders come from","Channels — Instagram, WhatsApp, phone, in person. No auto-integration in MVP: the owner enters orders. A Telegram bot may come later."],
-      B:["Order intake","Simple form: client, due date, list of items. Each has a sale price and seamstress pay. This captures the order into the system."],
+      A:["Where orders come from","Orders arrive automatically from the Shopify store (selezza.co.uk). On checkout, Shopify sends a webhook — the order appears in the system instantly. Manual entry remains a fallback."],
+      B:["Automatic intake","The system verifies the Shopify signature (HMAC), then creates the client, order and line items; cards appear in the Queue with no manual entry."],
       C:["Items = cards","Each item in an order becomes a separate card. The seamstress works a card, not the whole order."],
       D:["Distribution","Two modes: assign directly to a seamstress, or put it in the shared pool where a seamstress takes it herself."],
       G:["In progress + reserve","When work starts, materials are reserved by the item's norms. If short, we warn but don't block."],
@@ -231,7 +231,7 @@ const UI = {
 /* ============ МЕТКИ ДИАГРАММ ============ */
 const LABELS = {
   ru:{
-    o_client:"Клиент обращается<br/>Instagram · WhatsApp · телефон",o_intake:"Отец вносит заказ<br/>через простую форму",
+    o_client:"Заказ на сайте Shopify<br/>selezza.co.uk",o_intake:"Webhook → заказ создаётся<br/>в системе автоматически",
     o_items:"Позиции заказа<br/>= карточки на доске",o_distribute:"Распределение",o_assigned:"Назначена швее<br/>статус: Назначен",
     o_free:"Свободна<br/>статус: Новый",o_work:"В РАБОТЕ<br/>+ бронь материалов",o_done:"ГОТОВО<br/>+ списание материалов",
     o_deliver:"Выдача клиенту",o_analytics:"Аналитика:<br/>маржа · скорость · остатки",
@@ -240,6 +240,8 @@ const LABELS = {
     i_create:"Создать клиента",i_add:"Добавить изделия<br/>в заказ",i_each:"Для каждого изделия:<br/>цена · оплата швее",
     i_assignq:"Назначить сразу?",i_assign:"Выбрать швею<br/>статус: Назначен",i_poolst:"В общий пул<br/>статус: Новый",
     i_cards:"Карточки на доске<br/>колонка «Очередь»",
+    sh_order:"Заказ на сайте Shopify<br/>selezza.co.uk",e_webhook:"вебхук",sh_hmac:"Проверка подписи Shopify<br/>(HMAC)",
+    sh_create:"Создать клиента, заказ<br/>и позиции автоматически",sh_manual:"Ручной ввод формой<br/>(запасной путь)",e_fallback:"резерв",
     b_queue:"Очередь (Новый / Назначен)",b_work:"В работе",b_done:"Готово",
     b_t1:"Начать → бронь материалов",b_t2:"Готово → списание",b_t3:"Вернуть → снятие брони",b_t4:"Выдача",
     m_start:"Карточка в работу",m_norms:"Рассчитать нормы<br/>по спецификации (BOM)",m_q:"Доступно ≥ нужно?",
@@ -252,7 +254,7 @@ const LABELS = {
     g_s:"Швея: вопрос/проблема<br/>(опц. на карточке)",g_m:"Сообщение",g_in:"Управление:<br/>входящие",g_re:"Ответ в треде",g_ok:"Пометить «решено»"
   },
   tr:{
-    o_client:"Müşteri başvurusu<br/>Instagram · WhatsApp · telefon",o_intake:"Baba siparişi girer<br/>basit form ile",
+    o_client:"Shopify mağazasında sipariş<br/>selezza.co.uk",o_intake:"Webhook → sipariş otomatik<br/>sisteme eklenir",
     o_items:"Sipariş kalemleri<br/>= panodaki kartlar",o_distribute:"Dağıtım",o_assigned:"Terziye atandı<br/>durum: Atandı",
     o_free:"Boşta<br/>durum: Yeni",o_work:"ÇALIŞMADA<br/>+ malzeme rezervi",o_done:"HAZIR<br/>+ stoktan düşme",
     o_deliver:"Müşteriye teslim",o_analytics:"Analitik:<br/>kâr · hız · stok",
@@ -261,6 +263,8 @@ const LABELS = {
     i_create:"Müşteri oluştur",i_add:"Siparişe ürün<br/>ekle",i_each:"Her ürün için:<br/>fiyat · terzi ücreti",
     i_assignq:"Hemen atansın mı?",i_assign:"Terzi seç<br/>durum: Atandı",i_poolst:"Ortak havuza<br/>durum: Yeni",
     i_cards:"Panodaki kartlar<br/>«Sırada» sütunu",
+    sh_order:"Shopify mağazasında sipariş<br/>selezza.co.uk",e_webhook:"webhook",sh_hmac:"Shopify imza doğrulama<br/>(HMAC)",
+    sh_create:"Müşteri, sipariş ve<br/>kalemler otomatik oluşur",sh_manual:"Elle form girişi<br/>(yedek yol)",e_fallback:"yedek",
     b_queue:"Sırada (Yeni / Atandı)",b_work:"Çalışmada",b_done:"Hazır",
     b_t1:"Başla → malzeme rezervi",b_t2:"Hazır → stoktan düşme",b_t3:"Geri al → rezerv iptali",b_t4:"Teslim",
     m_start:"Kart çalışmaya",m_norms:"Normları hesapla<br/>reçeteye (BOM) göre",m_q:"Mevcut ≥ gerekli?",
@@ -273,7 +277,7 @@ const LABELS = {
     g_s:"Terzi: soru/sorun<br/>(ops. kart üzerinde)",g_m:"Mesaj",g_in:"Yönetim:<br/>gelen kutusu",g_re:"Konuda yanıt",g_ok:"«Çözüldü» işaretle"
   },
   en:{
-    o_client:"Customer inquiry<br/>Instagram · WhatsApp · phone",o_intake:"Owner enters order<br/>via simple form",
+    o_client:"Order on Shopify store<br/>selezza.co.uk",o_intake:"Webhook → order auto-created<br/>in the system",
     o_items:"Order items<br/>= cards on the board",o_distribute:"Distribution",o_assigned:"Assigned to seamstress<br/>status: Assigned",
     o_free:"Unassigned<br/>status: New",o_work:"IN PROGRESS<br/>+ material reservation",o_done:"DONE<br/>+ stock write-off",
     o_deliver:"Deliver to customer",o_analytics:"Analytics:<br/>margin · speed · stock",
@@ -282,6 +286,8 @@ const LABELS = {
     i_create:"Create client",i_add:"Add items<br/>to the order",i_each:"Per item:<br/>price · seamstress pay",
     i_assignq:"Assign now?",i_assign:"Pick seamstress<br/>status: Assigned",i_poolst:"To shared pool<br/>status: New",
     i_cards:"Cards on the board<br/>“Queue” column",
+    sh_order:"Order on Shopify store<br/>selezza.co.uk",e_webhook:"webhook",sh_hmac:"Verify Shopify signature<br/>(HMAC)",
+    sh_create:"Auto-create client, order<br/>and line items",sh_manual:"Manual form entry<br/>(fallback)",e_fallback:"fallback",
     b_queue:"Queue (New / Assigned)",b_work:"In progress",b_done:"Done",
     b_t1:"Start → reserve materials",b_t2:"Done → write-off",b_t3:"Return → release reservation",b_t4:"Delivery",
     m_start:"Card to work",m_norms:"Compute norms<br/>from recipe (BOM)",m_q:"Available ≥ needed?",
@@ -323,18 +329,12 @@ function buildDiagrams(L){
   class G work; class H done;`,
     intake:
 `flowchart TD
-  A["${L.i_req}"] --> B["${L.i_open}"]
-  B --> C{"${L.i_exists}"}
-  C -->|"${L.e_yes}"| D["${L.i_pick}"]
-  C -->|"${L.e_no}"| E["${L.i_create}"]
-  D --> F["${L.i_add}"]
-  E --> F
-  F --> G["${L.i_each}"]
-  G --> H{"${L.i_assignq}"}
-  H -->|"${L.e_yes}"| I["${L.i_assign}"]
-  H -->|"${L.e_no}"| J["${L.i_poolst}"]
-  I --> K["${L.i_cards}"]
-  J --> K`,
+  A["${L.sh_order}"] -->|"${L.e_webhook}"| B["${L.sh_hmac}"]
+  B --> C["${L.sh_create}"]
+  M["${L.sh_manual}"] -. "${L.e_fallback}" .-> C
+  C --> K["${L.i_cards}"]
+  classDef auto fill:#eaf6ec,stroke:#4f9d69,color:#1d1a16;
+  class A,B,C auto;`,
     board:
 `stateDiagram-v2
   direction LR
