@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Atelier ERP</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#faf8f4; --panel:#ffffff; --ink:#1d1a16; --muted:#6f6557;
+    --gold:#b08d4f; --line:#e3dccf;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.5;}
+  header{padding:24px 32px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#fff,#fbf9f5);position:relative;}
+  header h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:600;
+    font-size:26px;letter-spacing:.3px;}
+  header .sub{color:var(--muted);margin-top:6px;font-size:14px;max-width:820px}
+  .gold{color:var(--gold)}
+  .langsw{position:absolute;top:22px;right:32px;display:flex;gap:6px}
+  .langsw button{border:1px solid var(--line);background:#fff;border-radius:8px;
+    padding:6px 12px;cursor:pointer;font-size:13px;color:var(--ink)}
+  .langsw button.active{background:var(--gold);border-color:var(--gold);color:#fff}
+  nav.tabs{display:flex;flex-wrap:wrap;gap:8px;padding:16px 32px;
+    border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:5;}
+  .tab{border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:9px 16px;border-radius:999px;cursor:pointer;font-size:14px;transition:.15s;}
+  .tab:hover{border-color:var(--gold)}
+  .tab.active{background:var(--gold);border-color:var(--gold);color:#fff}
+  main{display:flex;gap:24px;padding:24px 32px;width:100%}
+  .stage{flex:1;min-width:0}
+  .stage h2{font-family:Georgia,serif;font-weight:600;font-size:20px;margin:0 0 4px;}
+  .stage p.lead{color:var(--muted);margin:0 0 16px;max-width:760px}
+  .diagram{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:18px;overflow:auto;box-shadow:0 1px 3px rgba(0,0,0,.03);}
+  .mermaid{display:flex;justify-content:center;min-height:60px}
+  aside.detail{width:320px;flex-shrink:0;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:18px;height:fit-content;position:sticky;top:92px;}
+  aside.detail h3{margin:0 0 8px;font-size:15px;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
+  aside.detail .hint{font-size:12px;color:var(--muted);margin-bottom:12px}
+  aside.detail .body{font-size:14px}
+  .section{display:none}
+  .section.active{display:block}
+  .legend{margin-top:14px;font-size:12.5px;color:var(--muted)}
+  footer{padding:18px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
+  @media(max-width:900px){main{flex-direction:column}aside.detail{width:auto;position:static}}
+</style>
+</head>
+<body>
+<header>
+  <div class="langsw" id="langsw">
+    <button data-lang="tr">TR</button>
+    <button data-lang="ru">RU</button>
+    <button data-lang="en">EN</button>
+  </div>
+  <h1 id="h1"></h1>
+  <div class="sub" id="sub"></div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="overview"></button>
+  <button class="tab" data-tab="intake"></button>
+  <button class="tab" data-tab="board"></button>
+  <button class="tab" data-tab="materials"></button>
+  <button class="tab" data-tab="roles"></button>
+  <button class="tab" data-tab="messages"></button>
+</nav>
+
+<main>
+  <div class="stage">
+    <section class="section active" id="overview">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
+    <section class="section" id="intake">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
+    <section class="section" id="board">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
+    <section class="section" id="materials">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
+    <section class="section" id="roles">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
+    <section class="section" id="messages">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
+  </div>
+
+  <aside class="detail" id="detail">
+    <h3 id="detailHead"></h3>
+    <div class="hint" id="detailHint"></div>
+    <div class="body" id="detailBody"></div>
+  </aside>
+</main>
+
+<footer id="footer"></footer>
+
+<script>
+/* ============ ПЕРЕВОДЫ ИНТЕРФЕЙСА ============ */
+const TABS = ["overview","intake","board","materials","roles","messages"];
+
+const UI = {
+  ru:{
+    accent:"карта процессов",
+    sub:"Как устроена работа: от приёма заказа до выдачи, учёта материалов и аналитики. Нажимайте на шаги — справа появится пояснение.",
+    tabs:{overview:"Общий процесс",intake:"Приём заказа",board:"Доска пошива",materials:"Материалы",roles:"Роли и доступы",messages:"Сообщения"},
+    detailHead:"Пояснение",
+    hintOverview:"Кликайте по блокам схемы «Общий процесс».",
+    footer:'Atelier ERP · черновик для согласования. <span class="gold">Учтём позже:</span> расходы и полная маржинальность, Telegram-бот приёма заказов, подключение BI/ClickHouse.<br/>© 2026 Selezza London. Все права защищены. Конфиденциально.',
+    sections:{
+      overview:{h2:"Общий процесс — от заказа до выдачи",lead:"Сквозной путь заказа. Кликните на любой блок, чтобы увидеть подробности справа.",legend:"<b>Цвета:</b> жёлтый — момент брони материалов, зелёный — момент списания со склада."},
+      intake:{h2:"Приём заказа",lead:"Заказы заносятся вручную через форму (в MVP). В будущем — Telegram-бот.",legend:"<b>Важно:</b> срок, № заказа и клиент хранятся на заказе; цена и оплата — на каждой позиции (для аналитики маржи)."},
+      board:{h2:"Доска пошива — движение карточки",lead:"Три колонки: Очередь → В работе → Готово. Швея видит только свои карточки и свободные.",legend:"<b>Защита от гонки:</b> свободную карточку может взять только одна швея. Каждый переход пишется в журнал — отсюда аналитика скорости."},
+      materials:{h2:"Жизненный цикл материалов",lead:"Две фазы: бронь при запуске в работу, списание при готовности. «Доступно» = остаток − активные брони.",legend:"<b>Для аналитики:</b> склад — журнал движений, брони — отдельно. Это даёт точную себестоимость материалов в изделии."},
+      roles:{h2:"Роли и доступы",lead:"Управление входит через Google-почту, швеи — по короткому PIN. Роли расширяемы.",legend:"<b>Гибкость:</b> роли заданы флагами (управление / распределяет / шьёт), новые роли добавляются без переписывания логики."},
+      messages:{h2:"Связь швея ↔ управление",lead:"Швея может задать вопрос прямо по карточке. Управление видит входящие и отвечает.",legend:"<b>Контекст:</b> сообщение можно привязать к карточке — управление сразу видит, о каком изделии речь."}
+    },
+    defaults:{
+      overview:"Выберите шаг на схеме, чтобы увидеть детали.",
+      intake:"Заказы заносятся вручную. Клиент → изделия → цена и оплата → на доску.",
+      board:"Карточка едет по трём колонкам. Переходы пишутся в журнал для аналитики скорости.",
+      materials:"Бронь при запуске в работу, списание при готовности. Доступно = остаток − брони.",
+      roles:"Управление — вход Google; швеи — PIN. Роли заданы гибкими флагами.",
+      messages:"Швея пишет управлению, опционально привязывая сообщение к карточке."
+    },
+    info:{
+      A:["Откуда приходят заказы","Каналы — Instagram, WhatsApp, телефон, личная встреча. Автоинтеграции в MVP нет: отец заносит заказ сам. Позже — Telegram-бот."],
+      B:["Приём заказа","Простая форма: клиент, срок, список изделий. Для каждого — цена продажи и оплата швее. Это и есть «перехват» заказа в систему."],
+      C:["Позиции = карточки","Каждое изделие в заказе становится отдельной карточкой. Швея работает с карточкой, а не с заказом целиком."],
+      D:["Распределение","Два режима: назначить адресно конкретной швее или положить в общий пул, откуда швея берёт сама."],
+      G:["В работе + бронь","При запуске в работу материалы бронируются по нормам изделия. Если не хватает — предупреждаем, но не блокируем."],
+      H:["Готово + списание","При «Готово» бронь превращается в списание со склада. Считается себестоимость материалов."],
+      J:["Аналитика","Чистая база даёт маржу по изделию, скорость швей и состояние остатков. В будущем — BI/ClickHouse."]
+    }
+  },
+  tr:{
+    accent:"süreç haritası",
+    sub:"İşin nasıl yürüdüğü: sipariş alımından teslimata, malzeme takibi ve analitiğe kadar. Adımlara tıklayın — açıklama sağda görünür.",
+    tabs:{overview:"Genel süreç",intake:"Sipariş alımı",board:"Dikim panosu",materials:"Malzemeler",roles:"Roller ve erişim",messages:"Mesajlar"},
+    detailHead:"Açıklama",
+    hintOverview:"«Genel süreç» şemasındaki bloklara tıklayın.",
+    footer:'Atelier ERP · onay için taslak. <span class="gold">Sonra eklenecek:</span> giderler ve tam kârlılık, Telegram sipariş botu, BI/ClickHouse bağlantısı.<br/>© 2026 Selezza London. Tüm hakları saklıdır. Gizlidir.',
+    sections:{
+      overview:{h2:"Genel süreç — siparişten teslimata",lead:"Siparişin uçtan uca yolu. Detayları görmek için herhangi bir bloğa tıklayın.",legend:"<b>Renkler:</b> sarı — malzeme rezervi anı, yeşil — stoktan düşme anı."},
+      intake:{h2:"Sipariş alımı",lead:"Siparişler form ile elle girilir (MVP). İleride — Telegram botu.",legend:"<b>Önemli:</b> termin, sipariş no ve müşteri siparişte; fiyat ve ücret her kalemde (kâr analitiği için)."},
+      board:{h2:"Dikim panosu — kartın hareketi",lead:"Üç sütun: Sırada → Çalışmada → Hazır. Terzi yalnızca kendi ve boştaki kartları görür.",legend:"<b>Yarış koruması:</b> boştaki kartı yalnızca bir terzi alabilir. Her geçiş günlüğe yazılır — hız analitiği buradan gelir."},
+      materials:{h2:"Malzeme yaşam döngüsü",lead:"İki aşama: çalışmaya alınca rezerv, bitince stoktan düşme. «Müsait» = stok − aktif rezervler.",legend:"<b>Analitik için:</b> stok bir hareket günlüğü, rezervler ayrı. Bu, üründeki malzeme maliyetini net verir."},
+      roles:{h2:"Roller ve erişim",lead:"Yönetim Google e-posta ile, terziler kısa PIN ile giriş yapar. Roller genişletilebilir.",legend:"<b>Esneklik:</b> roller bayraklarla tanımlı (yönetim / atar / diker); yeni roller mantık değişmeden eklenir."},
+      messages:{h2:"Terzi ↔ yönetim iletişimi",lead:"Terzi doğrudan kart üzerinden soru sorabilir. Yönetim gelenleri görür ve yanıtlar.",legend:"<b>Bağlam:</b> mesaj bir karta bağlanabilir — yönetim hangi ürün olduğunu hemen görür."}
+    },
+    defaults:{
+      overview:"Detayları görmek için şemadan bir adım seçin.",
+      intake:"Siparişler elle girilir. Müşteri → ürünler → fiyat ve ücret → panoya.",
+      board:"Kart üç sütun arasında ilerler. Geçişler hız analitiği için günlüğe yazılır.",
+      materials:"Çalışmaya alınca rezerv, bitince stoktan düşme. Müsait = stok − rezervler.",
+      roles:"Yönetim — Google girişi; terziler — PIN. Roller esnek bayraklarla tanımlı.",
+      messages:"Terzi yönetime yazar, mesajı isteğe bağlı bir karta bağlar."
+    },
+    info:{
+      A:["Siparişler nereden gelir","Kanallar — Instagram, WhatsApp, telefon, yüz yüze. MVP'de otomatik entegrasyon yok: baba siparişi kendi girer. İleride Telegram botu."],
+      B:["Sipariş alımı","Basit form: müşteri, termin, ürün listesi. Her ürün için satış fiyatı ve terzi ücreti. Siparişin sisteme alınması budur."],
+      C:["Kalemler = kartlar","Siparişteki her ürün ayrı bir kart olur. Terzi sipariş bütününü değil kartı işler."],
+      D:["Dağıtım","İki mod: doğrudan belirli bir terziye atamak veya terzinin kendi aldığı ortak havuza koymak."],
+      G:["Çalışmada + rezerv","Çalışmaya alınca malzemeler ürün normlarına göre rezerve edilir. Yetmezse uyarırız ama engellemeyiz."],
+      H:["Hazır + düşme","«Hazır» olunca rezerv stoktan düşmeye dönüşür. Malzeme maliyeti hesaplanır."],
+      J:["Analitik","Temiz veritabanı; ürün kârı, terzi hızı ve stok durumu. İleride BI/ClickHouse."]
+    }
+  },
+  en:{
+    accent:"process map",
+    sub:"How it works: from order intake to delivery, material tracking and analytics. Click the steps — details appear on the right.",
+    tabs:{overview:"Overview",intake:"Order intake",board:"Sewing board",materials:"Materials",roles:"Roles & access",messages:"Messages"},
+    detailHead:"Details",
+    hintOverview:"Click the blocks in the “Overview” diagram.",
+    footer:'Atelier ERP · draft for review. <span class="gold">Coming later:</span> expenses & full margin, Telegram intake bot, BI/ClickHouse connection.<br/>© 2026 Selezza London. All rights reserved. Confidential.',
+    sections:{
+      overview:{h2:"Overview — from order to delivery",lead:"The end-to-end path of an order. Click any block to see details on the right.",legend:"<b>Colors:</b> gold — material reservation moment, green — stock write-off moment."},
+      intake:{h2:"Order intake",lead:"Orders are entered manually via a form (MVP). A Telegram bot may come later.",legend:"<b>Note:</b> due date, order no. and client live on the order; price and pay on each item (for margin analytics)."},
+      board:{h2:"Sewing board — card movement",lead:"Three columns: Queue → In progress → Done. A seamstress sees only her cards and free ones.",legend:"<b>Race safety:</b> a free card can be taken by only one seamstress. Every transition is logged — that powers speed analytics."},
+      materials:{h2:"Material lifecycle",lead:"Two phases: reserve when work starts, write-off when done. “Available” = on hand − active reservations.",legend:"<b>For analytics:</b> stock is a movement ledger, reservations are separate. This gives exact material cost per item."},
+      roles:{h2:"Roles & access",lead:"Management signs in with Google email, seamstresses with a short PIN. Roles are extensible.",legend:"<b>Flexibility:</b> roles use flags (manage / assign / sew); new roles are added without rewriting logic."},
+      messages:{h2:"Seamstress ↔ management chat",lead:"A seamstress can ask a question right on a card. Management sees the inbox and replies.",legend:"<b>Context:</b> a message can be linked to a card — management instantly sees which item it's about."}
+    },
+    defaults:{
+      overview:"Pick a step on the diagram to see details.",
+      intake:"Orders are entered manually. Client → items → price & pay → to the board.",
+      board:"A card moves across three columns. Transitions are logged for speed analytics.",
+      materials:"Reserve when work starts, write-off when done. Available = on hand − reservations.",
+      roles:"Management — Google login; seamstresses — PIN. Roles use flexible flags.",
+      messages:"Seamstress messages management, optionally linking it to a card."
+    },
+    info:{
+      A:["Where orders come from","Channels — Instagram, WhatsApp, phone, in person. No auto-integration in MVP: the owner enters orders. A Telegram bot may come later."],
+      B:["Order intake","Simple form: client, due date, list of items. Each has a sale price and seamstress pay. This captures the order into the system."],
+      C:["Items = cards","Each item in an order becomes a separate card. The seamstress works a card, not the whole order."],
+      D:["Distribution","Two modes: assign directly to a seamstress, or put it in the shared pool where a seamstress takes it herself."],
+      G:["In progress + reserve","When work starts, materials are reserved by the item's norms. If short, we warn but don't block."],
+      H:["Done + write-off","On “Done”, the reservation becomes a stock write-off. Material cost is computed."],
+      J:["Analytics","A clean database yields per-item margin, seamstress speed and stock status. BI/ClickHouse later."]
+    }
+  }
+};
+
+/* ============ МЕТКИ ДИАГРАММ ============ */
+const LABELS = {
+  ru:{
+    o_client:"Клиент обращается<br/>Instagram · WhatsApp · телефон",o_intake:"Отец вносит заказ<br/>через простую форму",
+    o_items:"Позиции заказа<br/>= карточки на доске",o_distribute:"Распределение",o_assigned:"Назначена швее<br/>статус: Назначен",
+    o_free:"Свободна<br/>статус: Новый",o_work:"В РАБОТЕ<br/>+ бронь материалов",o_done:"ГОТОВО<br/>+ списание материалов",
+    o_deliver:"Выдача клиенту",o_analytics:"Аналитика:<br/>маржа · скорость · остатки",
+    e_addr:"Адресно",e_pool:"В общий пул",e_take:"Швея берёт",e_return:"возврат",e_yes:"Да",e_no:"Нет",
+    i_req:"Обращение клиента",i_open:"Открыть «Новый заказ»",i_exists:"Клиент уже есть?",i_pick:"Выбрать клиента",
+    i_create:"Создать клиента",i_add:"Добавить изделия<br/>в заказ",i_each:"Для каждого изделия:<br/>цена · оплата швее",
+    i_assignq:"Назначить сразу?",i_assign:"Выбрать швею<br/>статус: Назначен",i_poolst:"В общий пул<br/>статус: Новый",
+    i_cards:"Карточки на доске<br/>колонка «Очередь»",
+    b_queue:"Очередь (Новый / Назначен)",b_work:"В работе",b_done:"Готово",
+    b_t1:"Начать → бронь материалов",b_t2:"Готово → списание",b_t3:"Вернуть → снятие брони",b_t4:"Выдача",
+    m_start:"Карточка в работу",m_norms:"Рассчитать нормы<br/>по спецификации (BOM)",m_q:"Доступно ≥ нужно?",
+    m_ok:"Бронь активна",m_warn:"⚠ Предупредить,<br/>но разрешить (бронь в минус)",
+    m_consume:"Списание:<br/>−остаток · бронь «израсходована»",m_release:"Снятие брони:<br/>материал снова доступен",
+    m_stk:"Остаток обновлён",m_al:"Остаток < минимума?",m_buy:"Пора закупить",m_done:"Карточка → Готово",m_ret:"Карточка → Очередь",
+    r_mgmt:"Управление · вход через Google",r_gd:"Генеральный директор",r_own:"Владелец (отец)",r_sl:"Главный по цеху",
+    r_shop:"Цех · вход по PIN",r_sew:"Швея",r_v1:"Вся доска · заказы<br/>склад · аналитика · сообщения",
+    r_v2:"Мобильный вид:<br/>мои задачи · Взять / Готово",r_edge:"вопрос / проблема",
+    g_s:"Швея: вопрос/проблема<br/>(опц. на карточке)",g_m:"Сообщение",g_in:"Управление:<br/>входящие",g_re:"Ответ в треде",g_ok:"Пометить «решено»"
+  },
+  tr:{
+    o_client:"Müşteri başvurusu<br/>Instagram · WhatsApp · telefon",o_intake:"Baba siparişi girer<br/>basit form ile",
+    o_items:"Sipariş kalemleri<br/>= panodaki kartlar",o_distribute:"Dağıtım",o_assigned:"Terziye atandı<br/>durum: Atandı",
+    o_free:"Boşta<br/>durum: Yeni",o_work:"ÇALIŞMADA<br/>+ malzeme rezervi",o_done:"HAZIR<br/>+ stoktan düşme",
+    o_deliver:"Müşteriye teslim",o_analytics:"Analitik:<br/>kâr · hız · stok",
+    e_addr:"Doğrudan",e_pool:"Ortak havuza",e_take:"Terzi alır",e_return:"geri al",e_yes:"Evet",e_no:"Hayır",
+    i_req:"Müşteri başvurusu",i_open:"«Yeni sipariş» aç",i_exists:"Müşteri var mı?",i_pick:"Müşteriyi seç",
+    i_create:"Müşteri oluştur",i_add:"Siparişe ürün<br/>ekle",i_each:"Her ürün için:<br/>fiyat · terzi ücreti",
+    i_assignq:"Hemen atansın mı?",i_assign:"Terzi seç<br/>durum: Atandı",i_poolst:"Ortak havuza<br/>durum: Yeni",
+    i_cards:"Panodaki kartlar<br/>«Sırada» sütunu",
+    b_queue:"Sırada (Yeni / Atandı)",b_work:"Çalışmada",b_done:"Hazır",
+    b_t1:"Başla → malzeme rezervi",b_t2:"Hazır → stoktan düşme",b_t3:"Geri al → rezerv iptali",b_t4:"Teslim",
+    m_start:"Kart çalışmaya",m_norms:"Normları hesapla<br/>reçeteye (BOM) göre",m_q:"Mevcut ≥ gerekli?",
+    m_ok:"Rezerv aktif",m_warn:"⚠ Uyar,<br/>ama izin ver (eksiye düşebilir)",
+    m_consume:"Stoktan düşme:<br/>−stok · rezerv «harcandı»",m_release:"Rezerv iptali:<br/>malzeme yeniden müsait",
+    m_stk:"Stok güncellendi",m_al:"Stok < minimum?",m_buy:"Satın alma zamanı",m_done:"Kart → Hazır",m_ret:"Kart → Sıraya",
+    r_mgmt:"Yönetim · Google ile giriş",r_gd:"Genel müdür",r_own:"Sahip (baba)",r_sl:"Atölye şefi",
+    r_shop:"Atölye · PIN ile giriş",r_sew:"Terzi",r_v1:"Tüm pano · siparişler<br/>stok · analitik · mesajlar",
+    r_v2:"Mobil görünüm:<br/>görevlerim · Al / Hazır",r_edge:"soru / sorun",
+    g_s:"Terzi: soru/sorun<br/>(ops. kart üzerinde)",g_m:"Mesaj",g_in:"Yönetim:<br/>gelen kutusu",g_re:"Konuda yanıt",g_ok:"«Çözüldü» işaretle"
+  },
+  en:{
+    o_client:"Customer inquiry<br/>Instagram · WhatsApp · phone",o_intake:"Owner enters order<br/>via simple form",
+    o_items:"Order items<br/>= cards on the board",o_distribute:"Distribution",o_assigned:"Assigned to seamstress<br/>status: Assigned",
+    o_free:"Unassigned<br/>status: New",o_work:"IN PROGRESS<br/>+ material reservation",o_done:"DONE<br/>+ stock write-off",
+    o_deliver:"Deliver to customer",o_analytics:"Analytics:<br/>margin · speed · stock",
+    e_addr:"Directly",e_pool:"To shared pool",e_take:"Seamstress takes",e_return:"return",e_yes:"Yes",e_no:"No",
+    i_req:"Customer inquiry",i_open:"Open “New order”",i_exists:"Client exists?",i_pick:"Select client",
+    i_create:"Create client",i_add:"Add items<br/>to the order",i_each:"Per item:<br/>price · seamstress pay",
+    i_assignq:"Assign now?",i_assign:"Pick seamstress<br/>status: Assigned",i_poolst:"To shared pool<br/>status: New",
+    i_cards:"Cards on the board<br/>“Queue” column",
+    b_queue:"Queue (New / Assigned)",b_work:"In progress",b_done:"Done",
+    b_t1:"Start → reserve materials",b_t2:"Done → write-off",b_t3:"Return → release reservation",b_t4:"Delivery",
+    m_start:"Card to work",m_norms:"Compute norms<br/>from recipe (BOM)",m_q:"Available ≥ needed?",
+    m_ok:"Reservation active",m_warn:"⚠ Warn,<br/>but allow (can go negative)",
+    m_consume:"Write-off:<br/>−stock · reservation “consumed”",m_release:"Release:<br/>material available again",
+    m_stk:"Stock updated",m_al:"Stock < minimum?",m_buy:"Time to restock",m_done:"Card → Done",m_ret:"Card → Queue",
+    r_mgmt:"Management · Google login",r_gd:"General director",r_own:"Owner (father)",r_sl:"Shop lead",
+    r_shop:"Workshop · PIN login",r_sew:"Seamstress",r_v1:"Full board · orders<br/>stock · analytics · messages",
+    r_v2:"Mobile view:<br/>my tasks · Take / Done",r_edge:"question / issue",
+    g_s:"Seamstress: question/issue<br/>(opt. on a card)",g_m:"Message",g_in:"Management:<br/>inbox",g_re:"Reply in thread",g_ok:"Mark “resolved”"
+  }
+};
+
+/* ============ ПОСТРОЕНИЕ ДИАГРАММ (один шаблон, метки подставляются) ============ */
+function buildDiagrams(L){
+  return {
+    overview:
+`flowchart TD
+  A["${L.o_client}"] --> B["${L.o_intake}"]
+  B --> C["${L.o_items}"]
+  C --> D{"${L.o_distribute}"}
+  D -->|"${L.e_addr}"| E["${L.o_assigned}"]
+  D -->|"${L.e_pool}"| F["${L.o_free}"]
+  E --> G["${L.o_work}"]
+  F -->|"${L.e_take}"| G
+  G --> H["${L.o_done}"]
+  H --> I["${L.o_deliver}"]
+  G -. "${L.e_return}" .-> F
+  H --> J[("${L.o_analytics}")]
+  click A nodeInfo
+  click B nodeInfo
+  click C nodeInfo
+  click D nodeInfo
+  click G nodeInfo
+  click H nodeInfo
+  click J nodeInfo
+  classDef work fill:#fff6e6,stroke:#b08d4f,color:#1d1a16;
+  classDef done fill:#eaf6ec,stroke:#4f9d69,color:#1d1a16;
+  class G work; class H done;`,
+    intake:
+`flowchart TD
+  A["${L.i_req}"] --> B["${L.i_open}"]
+  B --> C{"${L.i_exists}"}
+  C -->|"${L.e_yes}"| D["${L.i_pick}"]
+  C -->|"${L.e_no}"| E["${L.i_create}"]
+  D --> F["${L.i_add}"]
+  E --> F
+  F --> G["${L.i_each}"]
+  G --> H{"${L.i_assignq}"}
+  H -->|"${L.e_yes}"| I["${L.i_assign}"]
+  H -->|"${L.e_no}"| J["${L.i_poolst}"]
+  I --> K["${L.i_cards}"]
+  J --> K`,
+    board:
+`stateDiagram-v2
+  direction LR
+  state "${L.b_queue}" as Queue
+  state "${L.b_work}" as Work
+  state "${L.b_done}" as Done
+  [*] --> Queue
+  Queue --> Work: ${L.b_t1}
+  Work --> Done: ${L.b_t2}
+  Work --> Queue: ${L.b_t3}
+  Done --> [*]: ${L.b_t4}`,
+    materials:
+`flowchart TD
+  P["${L.m_start}"] --> R["${L.m_norms}"]
+  R --> Q{"${L.m_q}"}
+  Q -->|"${L.e_yes}"| OK["${L.m_ok}"]
+  Q -->|"${L.e_no}"| W["${L.m_warn}"]
+  W --> OK
+  OK -->|"${L.m_done}"| C["${L.m_consume}"]
+  OK -->|"${L.m_ret}"| X["${L.m_release}"]
+  C --> STK["${L.m_stk}"]
+  STK --> AL{"${L.m_al}"}
+  AL -->|"${L.e_yes}"| BUY["${L.m_buy}"]
+  classDef warn fill:#fdeee0,stroke:#d08a3a,color:#1d1a16;
+  class W warn;`,
+    roles:
+`flowchart TD
+  subgraph MGMT["${L.r_mgmt}"]
+    GD["${L.r_gd}"]
+    OWN["${L.r_own}"]
+    SL["${L.r_sl}"]
+  end
+  subgraph SHOP["${L.r_shop}"]
+    SEW["${L.r_sew}"]
+  end
+  MGMT --> V1["${L.r_v1}"]
+  SEW --> V2["${L.r_v2}"]
+  SEW -. "${L.r_edge}" .-> MGMT
+  classDef m fill:#eef3fb,stroke:#5b7aa8,color:#1d1a16;
+  class GD,OWN,SL m;`,
+    messages:
+`flowchart LR
+  S["${L.g_s}"] --> M[("${L.g_m}")]
+  M --> IN["${L.g_in}"]
+  IN --> RE["${L.g_re}"]
+  RE --> S
+  IN --> OK["${L.g_ok}"]`
+  };
+}
+
+/* ============ РЕНДЕР И ПЕРЕКЛЮЧЕНИЕ ============ */
+mermaid.initialize({ startOnLoad:false, securityLevel:'loose', theme:'base',
+  themeVariables:{primaryColor:'#fffdf8',primaryBorderColor:'#cdbb98',primaryTextColor:'#1d1a16',
+    lineColor:'#b08d4f',fontFamily:'Segoe UI, sans-serif',fontSize:'14px'}});
+
+let lang = localStorage.getItem("atelier_lang") || "ru";
+let activeTab = "overview";
+
+window.nodeInfo = function(id){
+  const d = UI[lang].info[id];
+  if(d){
+    document.getElementById('detailHint').textContent = '';
+    document.getElementById('detailBody').innerHTML = '<b>'+d[0]+'</b><br/><br/>'+d[1];
+  }
+};
+
+function setDiagramSources(){
+  const D = buildDiagrams(LABELS[lang]);
+  TABS.forEach(id => {
+    const el = document.querySelector('#'+id+' .mermaid');
+    el.removeAttribute('data-processed');
+    el.innerHTML = D[id];
+  });
+}
+
+function renderSection(id){
+  const el = document.querySelector('#'+id+' .mermaid');
+  if(el && !el.dataset.processed){ mermaid.run({ nodes:[el] }); }
+}
+
+function setPanelDefault(){
+  document.getElementById('detailBody').textContent = UI[lang].defaults[activeTab];
+  document.getElementById('detailHint').textContent =
+    activeTab==='overview' ? UI[lang].hintOverview : '';
+}
+
+function applyLang(){
+  const u = UI[lang];
+  document.documentElement.lang = lang;
+  document.getElementById('h1').innerHTML = 'Atelier ERP — <span class="gold">'+u.accent+'</span>';
+  document.getElementById('sub').textContent = u.sub;
+  document.getElementById('detailHead').textContent = u.detailHead;
+  document.getElementById('footer').innerHTML = u.footer;
+  document.querySelectorAll('.tab').forEach(t => t.textContent = u.tabs[t.dataset.tab]);
+  TABS.forEach(id => {
+    const s = u.sections[id];
+    const sec = document.getElementById(id);
+    sec.querySelector('h2').textContent = s.h2;
+    sec.querySelector('.lead').textContent = s.lead;
+    sec.querySelector('.legend').innerHTML = s.legend;
+  });
+  document.querySelectorAll('#langsw button').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang===lang));
+  setDiagramSources();
+  renderSection(activeTab);
+  setPanelDefault();
+}
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  activeTab = t.dataset.tab;
+  document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id===activeTab));
+  renderSection(activeTab);
+  setPanelDefault();
+}));
+
+document.querySelectorAll('#langsw button').forEach(b => b.addEventListener('click', () => {
+  lang = b.dataset.lang;
+  localStorage.setItem("atelier_lang", lang);
+  applyLang();
+}));
+
+applyLang();
+</script>
+</body>
+</html>
