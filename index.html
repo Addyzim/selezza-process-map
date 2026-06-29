@@ -49,6 +49,17 @@
 </style>
 </head>
 <body>
+<div id="gate" style="position:fixed;inset:0;background:#faf8f4;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:Georgia,serif">
+  <div style="font-size:24px;letter-spacing:5px;margin-bottom:18px">SELEZZA&nbsp;LONDON</div>
+  <input id="gatepw" type="password" placeholder="Passphrase" style="padding:11px 14px;border:1px solid #cdbb98;font-size:16px;outline:none"/>
+  <button onclick="gateCheck()" style="margin-top:12px;padding:10px 22px;border:1px solid #1d1a16;background:#1d1a16;color:#fff;letter-spacing:2px;text-transform:uppercase;cursor:pointer">Enter</button>
+  <div style="margin-top:16px;font-size:11px;color:#999">© 2026 Selezza London — Confidential</div>
+</div>
+<script>
+function gateCheck(){var v=document.getElementById('gatepw').value;if(v==='selezza'){localStorage.setItem('slz_ok','1');document.getElementById('gate').style.display='none';}else{document.getElementById('gatepw').value='';document.getElementById('gatepw').placeholder='Wrong passphrase';}}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='gatepw')gateCheck();});
+if(localStorage.getItem('slz_ok')==='1'){document.addEventListener('DOMContentLoaded',function(){var g=document.getElementById('gate');if(g)g.style.display='none';});}
+</script>
 <header>
   <div class="langsw" id="langsw">
     <button data-lang="tr">TR</button>
