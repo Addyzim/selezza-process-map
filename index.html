@@ -19,10 +19,13 @@
     font-size:26px;letter-spacing:.3px;}
   header .sub{color:var(--muted);margin-top:6px;font-size:14px;max-width:820px}
   .gold{color:var(--gold)}
-  .langsw{position:absolute;top:22px;right:32px;display:flex;gap:6px}
+  .langsw{position:absolute;top:22px;right:32px;display:flex;gap:6px;align-items:center}
   .langsw button{border:1px solid var(--line);background:#fff;border-radius:8px;
     padding:6px 12px;cursor:pointer;font-size:13px;color:var(--ink)}
   .langsw button.active{background:var(--gold);border-color:var(--gold);color:#fff}
+  .back-erp{border:1px solid var(--line);background:#fff;border-radius:8px;
+    padding:6px 12px;font-size:13px;color:var(--ink);margin-right:6px}
+  .back-erp:hover{border-color:var(--gold);color:var(--gold)}
 
   /* левое сворачиваемое меню: свёрнуто — иконки, развёрнуто — иконки + названия */
   .shell{display:flex;align-items:flex-start}
@@ -33,14 +36,14 @@
   .sidebar.expanded{width:var(--sb-w-open)}
   .sidebar-toggle{border:none;background:none;color:var(--ink);cursor:pointer;
     padding:18px 0 10px 19px;align-self:flex-start}
-  .sidenav{display:flex;flex-direction:column;gap:2px;padding:4px 0;overflow-y:auto}
+  .sidenav{display:flex;flex-direction:column;gap:2px;padding:4px 0;overflow-y:auto;overflow-x:hidden}
   .sidenav a{display:flex;align-items:center;gap:14px;padding:11px 18px;white-space:nowrap;
     color:var(--ink);font-size:13px;cursor:pointer}
   .sidenav a:hover{background:var(--bg)}
   .sidenav a.active{background:var(--gold);color:#fff}
   .sidenav-icon{flex-shrink:0;display:flex}
-  .sidenav-label{opacity:0;transition:opacity .1s}
-  .sidebar.expanded .sidenav-label{opacity:1}
+  .sidenav-label{opacity:0;width:0;overflow:hidden;transition:opacity .1s}
+  .sidebar.expanded .sidenav-label{opacity:1;width:auto}
 
   main{display:flex;gap:24px;padding:24px 32px;width:100%;flex:1;min-width:0}
   .stage{flex:1;min-width:0}
@@ -86,6 +89,7 @@ if(localStorage.getItem('slz_ok')==='1'){document.addEventListener('DOMContentLo
 </script>
 <header>
   <div class="langsw" id="langsw">
+    <a href="/" class="back-erp" title="Atelier ERP">← ERP</a>
     <button data-lang="tr">TR</button>
     <button data-lang="ru">RU</button>
     <button data-lang="en">EN</button>
