@@ -23,13 +23,26 @@
   .langsw button{border:1px solid var(--line);background:#fff;border-radius:8px;
     padding:6px 12px;cursor:pointer;font-size:13px;color:var(--ink)}
   .langsw button.active{background:var(--gold);border-color:var(--gold);color:#fff}
-  nav.tabs{display:flex;flex-wrap:wrap;gap:8px;padding:16px 32px;
-    border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:5;}
-  .tab{border:1px solid var(--line);background:#fff;color:var(--ink);
-    padding:9px 16px;border-radius:999px;cursor:pointer;font-size:14px;transition:.15s;}
-  .tab:hover{border-color:var(--gold)}
-  .tab.active{background:var(--gold);border-color:var(--gold);color:#fff}
-  main{display:flex;gap:24px;padding:24px 32px;width:100%}
+
+  /* левое сворачиваемое меню: свёрнуто — иконки, развёрнуто — иконки + названия */
+  .shell{display:flex;align-items:flex-start}
+  .sidebar{--sb-w:58px;--sb-w-open:216px;width:var(--sb-w);flex-shrink:0;
+    background:#fff;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;
+    transition:width .15s ease}
+  .sidebar.expanded{width:var(--sb-w-open)}
+  .sidebar-toggle{border:none;background:none;color:var(--ink);cursor:pointer;
+    padding:18px 0 10px 19px;align-self:flex-start}
+  .sidenav{display:flex;flex-direction:column;gap:2px;padding:4px 0;overflow-y:auto}
+  .sidenav a{display:flex;align-items:center;gap:14px;padding:11px 18px;white-space:nowrap;
+    color:var(--ink);font-size:13px;cursor:pointer}
+  .sidenav a:hover{background:var(--bg)}
+  .sidenav a.active{background:var(--gold);color:#fff}
+  .sidenav-icon{flex-shrink:0;display:flex}
+  .sidenav-label{opacity:0;transition:opacity .1s}
+  .sidebar.expanded .sidenav-label{opacity:1}
+
+  main{display:flex;gap:24px;padding:24px 32px;width:100%;flex:1;min-width:0}
   .stage{flex:1;min-width:0}
   .stage h2{font-family:Georgia,serif;font-weight:600;font-size:20px;margin:0 0 4px;}
   .stage p.lead{color:var(--muted);margin:0 0 16px;max-width:760px}
@@ -45,7 +58,18 @@
   .section.active{display:block}
   .legend{margin-top:14px;font-size:12.5px;color:var(--muted)}
   footer{padding:18px 32px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
-  @media(max-width:900px){main{flex-direction:column}aside.detail{width:auto;position:static}}
+  @media(max-width:900px){
+    main{flex-direction:column}
+    aside.detail{width:auto;position:static}
+    .shell{flex-direction:column}
+    .sidebar{width:100%;height:auto;position:static;flex-direction:row;
+      border-right:none;border-bottom:1px solid var(--line)}
+    .sidebar.expanded{width:100%}
+    .sidebar-toggle{display:none}
+    .sidenav{flex-direction:row;overflow-x:auto;padding:0}
+    .sidenav a{padding:12px 14px}
+    .sidenav-label{display:none}
+  }
 </style>
 </head>
 <body>
@@ -70,14 +94,42 @@ if(localStorage.getItem('slz_ok')==='1'){document.addEventListener('DOMContentLo
   <div class="sub" id="sub"></div>
 </header>
 
-<nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="overview"></button>
-  <button class="tab" data-tab="intake"></button>
-  <button class="tab" data-tab="board"></button>
-  <button class="tab" data-tab="materials"></button>
-  <button class="tab" data-tab="roles"></button>
-  <button class="tab" data-tab="messages"></button>
-</nav>
+<div class="shell">
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="menu">
+    <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+  <nav class="sidenav" id="tabs">
+    <a class="tab active" data-tab="overview">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="4.5" r="2"/><circle cx="16" cy="4.5" r="2"/><circle cx="10" cy="15.5" r="2"/><path d="M5.7 5.7l7 9M14.3 5.7l-7 9"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+    <a class="tab" data-tab="intake">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5h15v9h-9.5L4.5 16v-2.5H2.5v-9Z"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+    <a class="tab" data-tab="board">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3" width="4.5" height="14" rx="1"/><rect x="8" y="3" width="4.5" height="9" rx="1"/><rect x="13.5" y="3" width="4" height="5.5" rx="1"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+    <a class="tab" data-tab="materials">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 6l7.5-4 7.5 4-7.5 4-7.5-4Z"/><path d="M2.5 6v8l7.5 4 7.5-4V6M10 10v8"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+    <a class="tab" data-tab="roles">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="5" height="5" rx="1"/><path d="M4.3 5.5l.9.9L6.7 4.5"/><rect x="3" y="11" width="5" height="5" rx="1"/><path d="M4.3 13.5l.9.9 1.5-1.9"/><path d="M11 5.5h6M11 13.5h6"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+    <a class="tab" data-tab="status">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="6.5" r="2.5"/><path d="M2.5 17c0-3 2-5 4.5-5s4.5 2 4.5 5"/><path d="M13.5 8.5l1.5 1.5 3-3"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+    <a class="tab" data-tab="messages">
+      <span class="sidenav-icon"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="2.5" width="12" height="15" rx="1.2"/><path d="M7.5 2v1.6h5V2M6.5 8h7M6.5 11h7M6.5 14h4.5"/></svg></span>
+      <span class="sidenav-label"></span>
+    </a>
+  </nav>
+</aside>
 
 <main>
   <div class="stage">
@@ -106,6 +158,11 @@ if(localStorage.getItem('slz_ok')==='1'){document.addEventListener('DOMContentLo
       <div class="diagram"><pre class="mermaid"></pre></div>
       <div class="legend"></div>
     </section>
+    <section class="section" id="status">
+      <h2></h2><p class="lead"></p>
+      <div class="diagram"><pre class="mermaid"></pre></div>
+      <div class="legend"></div>
+    </section>
     <section class="section" id="messages">
       <h2></h2><p class="lead"></p>
       <div class="diagram"><pre class="mermaid"></pre></div>
@@ -119,18 +176,19 @@ if(localStorage.getItem('slz_ok')==='1'){document.addEventListener('DOMContentLo
     <div class="body" id="detailBody"></div>
   </aside>
 </main>
+</div>
 
 <footer id="footer"></footer>
 
 <script>
 /* ============ ПЕРЕВОДЫ ИНТЕРФЕЙСА ============ */
-const TABS = ["overview","intake","board","materials","roles","messages"];
+const TABS = ["overview","intake","board","materials","roles","status","messages"];
 
 const UI = {
   ru:{
     accent:"карта процессов",
     sub:"Как устроена работа: от приёма заказа до выдачи, учёта материалов и аналитики. Нажимайте на шаги — справа появится пояснение.",
-    tabs:{overview:"Общий процесс",intake:"Приём заказа",board:"Доска пошива",materials:"Материалы",roles:"Роли и доступы",messages:"Сообщения"},
+    tabs:{overview:"Общий процесс",intake:"Приём заказа",board:"Доска пошива",materials:"Материалы",roles:"Роли и доступы",status:"Статус сотрудника",messages:"Сообщения"},
     detailHead:"Пояснение",
     hintOverview:"Кликайте по блокам схемы «Общий процесс».",
     footer:'Atelier ERP · черновик для согласования. <span class="gold">Учтём позже:</span> расходы и полная маржинальность, Telegram-бот приёма заказов, подключение BI/ClickHouse.<br/>© 2026 Selezza London. Все права защищены. Конфиденциально.',
@@ -139,7 +197,8 @@ const UI = {
       intake:{h2:"Приём заказа",lead:"Заказы попадают автоматически из Shopify по вебхуку. Ручная форма — запасной путь.",legend:"<b>Реальное время:</b> при оформлении заказа на сайте Shopify шлёт вебхук, система проверяет подпись (HMAC) и создаёт заказ. Вручную вводить ничего не нужно."},
       board:{h2:"Доска пошива — движение карточки",lead:"Три колонки: Очередь → В работе → Готово. Швея видит только свои карточки и свободные.",legend:"<b>Защита от гонки:</b> свободную карточку может взять только одна швея. Каждый переход пишется в журнал — отсюда аналитика скорости."},
       materials:{h2:"Жизненный цикл материалов",lead:"Две фазы: бронь при запуске в работу, списание при готовности. «Доступно» = остаток − активные брони.",legend:"<b>Для аналитики:</b> склад — журнал движений, брони — отдельно. Это даёт точную себестоимость материалов в изделии."},
-      roles:{h2:"Роли и доступы",lead:"Управление входит через Google-почту, швеи — по короткому PIN. Роли расширяемы.",legend:"<b>Гибкость:</b> роли заданы флагами (управление / распределяет / шьёт), новые роли добавляются без переписывания логики."},
+      roles:{h2:"Роли и доступы — конструктор в админке",lead:"Управление входит через Google-почту, швеи — по короткому PIN. Роль — это название + набор галочек-прав по разделам системы.",legend:"<b>Гибкость:</b> новая роль (например «Кладовщик») создаётся прямо в админке без программирования — просто отмечаются нужные разделы."},
+      status:{h2:"Статус сотрудника: три независимых состояния",lead:"«На месте», «Доступна» и «Занята» — разные вещи и не всегда совпадают. Швея может быть на месте, но недоступной для новой работы.",legend:"<b>Ручная занятость:</b> если управление ставит швею «занята» вручную, у неё в мобильном виде появляется задача с названием — это и есть причина занятости, а не абстрактный флаг."},
       messages:{h2:"Связь швея ↔ управление",lead:"Швея может задать вопрос прямо по карточке. Управление видит входящие и отвечает.",legend:"<b>Контекст:</b> сообщение можно привязать к карточке — управление сразу видит, о каком изделии речь."}
     },
     defaults:{
@@ -147,7 +206,8 @@ const UI = {
       intake:"Заказы приходят автоматически из Shopify (вебхук). Ручная форма — запасной путь.",
       board:"Карточка едет по трём колонкам. Переходы пишутся в журнал для аналитики скорости.",
       materials:"Бронь при запуске в работу, списание при готовности. Доступно = остаток − брони.",
-      roles:"Управление — вход Google; швеи — PIN. Роли заданы гибкими флагами.",
+      roles:"Управление — вход Google; швеи — PIN. Роль = название + галочки прав, задаётся в админке.",
+      status:"На месте, доступность и занятость — три независимых состояния швеи.",
       messages:"Швея пишет управлению, опционально привязывая сообщение к карточке."
     },
     info:{
@@ -163,7 +223,7 @@ const UI = {
   tr:{
     accent:"süreç haritası",
     sub:"İşin nasıl yürüdüğü: sipariş alımından teslimata, malzeme takibi ve analitiğe kadar. Adımlara tıklayın — açıklama sağda görünür.",
-    tabs:{overview:"Genel süreç",intake:"Sipariş alımı",board:"Dikim panosu",materials:"Malzemeler",roles:"Roller ve erişim",messages:"Mesajlar"},
+    tabs:{overview:"Genel süreç",intake:"Sipariş alımı",board:"Dikim panosu",materials:"Malzemeler",roles:"Roller ve erişim",status:"Personel durumu",messages:"Mesajlar"},
     detailHead:"Açıklama",
     hintOverview:"«Genel süreç» şemasındaki bloklara tıklayın.",
     footer:'Atelier ERP · onay için taslak. <span class="gold">Sonra eklenecek:</span> giderler ve tam kârlılık, Telegram sipariş botu, BI/ClickHouse bağlantısı.<br/>© 2026 Selezza London. Tüm hakları saklıdır. Gizlidir.',
@@ -172,7 +232,8 @@ const UI = {
       intake:{h2:"Sipariş alımı",lead:"Siparişler Shopify'dan webhook ile otomatik gelir. Elle form yedek yoldur.",legend:"<b>Gerçek zamanlı:</b> sitede sipariş verilince Shopify webhook gönderir, sistem imzayı (HMAC) doğrular ve siparişi oluşturur. Elle giriş gerekmez."},
       board:{h2:"Dikim panosu — kartın hareketi",lead:"Üç sütun: Sırada → Çalışmada → Hazır. Terzi yalnızca kendi ve boştaki kartları görür.",legend:"<b>Yarış koruması:</b> boştaki kartı yalnızca bir terzi alabilir. Her geçiş günlüğe yazılır — hız analitiği buradan gelir."},
       materials:{h2:"Malzeme yaşam döngüsü",lead:"İki aşama: çalışmaya alınca rezerv, bitince stoktan düşme. «Müsait» = stok − aktif rezervler.",legend:"<b>Analitik için:</b> stok bir hareket günlüğü, rezervler ayrı. Bu, üründeki malzeme maliyetini net verir."},
-      roles:{h2:"Roller ve erişim",lead:"Yönetim Google e-posta ile, terziler kısa PIN ile giriş yapar. Roller genişletilebilir.",legend:"<b>Esneklik:</b> roller bayraklarla tanımlı (yönetim / atar / diker); yeni roller mantık değişmeden eklenir."},
+      roles:{h2:"Roller ve erişim — yönetici panelinde oluşturucu",lead:"Yönetim Google e-posta ile, terziler kısa PIN ile giriş yapar. Rol = ad + sistemin bölümlerine göre izin kutucukları.",legend:"<b>Esneklik:</b> yeni bir rol (örn. «Depocu») kod yazmadan doğrudan yönetici panelinde oluşturulur — sadece gerekli bölümler işaretlenir."},
+      status:{h2:"Personel durumu: üç bağımsız hâl",lead:"«Burada», «Müsait» ve «Meşgul» farklı şeylerdir ve her zaman örtüşmez. Terzi atölyede olabilir ama yeni işe müsait olmayabilir.",legend:"<b>Elle meşguliyet:</b> yönetim bir terziyi elle «meşgul» yaparsa, onun mobil görünümünde adı olan bir görev belirir — meşguliyetin sebebi soyut bir bayrak değil, gerçek bir görevdir."},
       messages:{h2:"Terzi ↔ yönetim iletişimi",lead:"Terzi doğrudan kart üzerinden soru sorabilir. Yönetim gelenleri görür ve yanıtlar.",legend:"<b>Bağlam:</b> mesaj bir karta bağlanabilir — yönetim hangi ürün olduğunu hemen görür."}
     },
     defaults:{
@@ -180,7 +241,8 @@ const UI = {
       intake:"Siparişler Shopify'dan otomatik gelir (webhook). Elle form yedektir.",
       board:"Kart üç sütun arasında ilerler. Geçişler hız analitiği için günlüğe yazılır.",
       materials:"Çalışmaya alınca rezerv, bitince stoktan düşme. Müsait = stok − rezervler.",
-      roles:"Yönetim — Google girişi; terziler — PIN. Roller esnek bayraklarla tanımlı.",
+      roles:"Yönetim — Google girişi; terziler — PIN. Rol = ad + izin kutucukları, yönetici panelinde tanımlanır.",
+      status:"Burada olmak, müsaitlik ve meşguliyet — terzinin üç bağımsız hâli.",
       messages:"Terzi yönetime yazar, mesajı isteğe bağlı bir karta bağlar."
     },
     info:{
@@ -196,7 +258,7 @@ const UI = {
   en:{
     accent:"process map",
     sub:"How it works: from order intake to delivery, material tracking and analytics. Click the steps — details appear on the right.",
-    tabs:{overview:"Overview",intake:"Order intake",board:"Sewing board",materials:"Materials",roles:"Roles & access",messages:"Messages"},
+    tabs:{overview:"Overview",intake:"Order intake",board:"Sewing board",materials:"Materials",roles:"Roles & access",status:"Staff status",messages:"Messages"},
     detailHead:"Details",
     hintOverview:"Click the blocks in the “Overview” diagram.",
     footer:'Atelier ERP · draft for review. <span class="gold">Coming later:</span> expenses & full margin, Telegram intake bot, BI/ClickHouse connection.<br/>© 2026 Selezza London. All rights reserved. Confidential.',
@@ -205,7 +267,8 @@ const UI = {
       intake:{h2:"Order intake",lead:"Orders arrive automatically from Shopify via webhook. The manual form is a fallback.",legend:"<b>Real time:</b> on checkout the Shopify store sends a webhook; the system verifies the signature (HMAC) and creates the order. No manual entry needed."},
       board:{h2:"Sewing board — card movement",lead:"Three columns: Queue → In progress → Done. A seamstress sees only her cards and free ones.",legend:"<b>Race safety:</b> a free card can be taken by only one seamstress. Every transition is logged — that powers speed analytics."},
       materials:{h2:"Material lifecycle",lead:"Two phases: reserve when work starts, write-off when done. “Available” = on hand − active reservations.",legend:"<b>For analytics:</b> stock is a movement ledger, reservations are separate. This gives exact material cost per item."},
-      roles:{h2:"Roles & access",lead:"Management signs in with Google email, seamstresses with a short PIN. Roles are extensible.",legend:"<b>Flexibility:</b> roles use flags (manage / assign / sew); new roles are added without rewriting logic."},
+      roles:{h2:"Roles & access — a constructor in the admin panel",lead:"Management signs in with Google email, seamstresses with a short PIN. A role is a name + a set of permission checkboxes over the system's sections.",legend:"<b>Flexibility:</b> a new role (e.g. “Stock clerk”) is created right in the admin panel, no coding — just tick the sections it needs."},
+      status:{h2:"Staff status: three independent states",lead:"“Present”, “Available” and “Occupied” are different things and don't always line up. A seamstress can be present but unavailable for new work.",legend:"<b>Manual occupancy:</b> if management manually marks a seamstress “occupied”, a named task appears in her mobile view — occupancy has a real reason, not an abstract flag."},
       messages:{h2:"Seamstress ↔ management chat",lead:"A seamstress can ask a question right on a card. Management sees the inbox and replies.",legend:"<b>Context:</b> a message can be linked to a card — management instantly sees which item it's about."}
     },
     defaults:{
@@ -213,7 +276,8 @@ const UI = {
       intake:"Orders arrive automatically from Shopify (webhook). Manual form is a fallback.",
       board:"A card moves across three columns. Transitions are logged for speed analytics.",
       materials:"Reserve when work starts, write-off when done. Available = on hand − reservations.",
-      roles:"Management — Google login; seamstresses — PIN. Roles use flexible flags.",
+      roles:"Management — Google login; seamstresses — PIN. A role = name + permission checkboxes, set in the admin panel.",
+      status:"Presence, availability and occupancy — three independent states of a seamstress.",
       messages:"Seamstress messages management, optionally linking it to a card."
     },
     info:{
@@ -248,9 +312,17 @@ const LABELS = {
     m_ok:"Бронь активна",m_warn:"⚠ Предупредить,<br/>но разрешить (бронь в минус)",
     m_consume:"Списание:<br/>−остаток · бронь «израсходована»",m_release:"Снятие брони:<br/>материал снова доступен",
     m_stk:"Остаток обновлён",m_al:"Остаток < минимума?",m_buy:"Пора закупить",m_done:"Карточка → Готово",m_ret:"Карточка → Очередь",
-    r_mgmt:"Управление · вход через Google",r_gd:"Генеральный директор",r_own:"Владелец (отец)",r_sl:"Главный по цеху",
-    r_shop:"Цех · вход по PIN",r_sew:"Швея",r_v1:"Вся доска · заказы<br/>склад · аналитика · сообщения",
-    r_v2:"Мобильный вид:<br/>мои задачи · Взять / Готово",r_edge:"вопрос / проблема",
+    rc_admin:"Управление открывает<br/>Админ → Роли",rc_new:"+ Новая роль",
+    rc_form:"Название + галочки прав:<br/>доска · заказы · склад · аналитика · команда · сообщения · админ",
+    rc_save:"Сохранить",rc_use:"Роль доступна<br/>при создании пользователя",rc_examples:"Примеры ролей",
+    rc_ex_sew:"Швея<br/>✓ доска (свои карточки)",rc_ex_lead:"Главный по цеху<br/>✓ доска ✓ заказы ✓ склад ✓ команда",
+    rc_ex_new:"Кладовщик (новая роль)<br/>✓ склад ✓ сообщения",
+    st_seamstress:"Швея",st_presence:"На месте / Не на месте<br/>(чек-ин самой швеи)",
+    st_availability:"Доступна / Недоступна<br/>(решение управления)",st_occupied_q:"Занята?",
+    st_reason_card:"есть карточка «в работе»",st_reason_task:"активная ручная задача",st_reason_none:"нет ни того, ни другого",
+    st_busy:"Занята",st_free:"Свободна",st_mgr_sets:"Управление ставит<br/>«занята» вручную",
+    st_task:"Создаётся задача:<br/>название + комментарий",st_seen:"Швея видит задачу<br/>в мобильном виде",
+    st_close:"Закрытие<br/>(швеёй или управлением)",
     g_s:"Швея: вопрос/проблема<br/>(опц. на карточке)",g_m:"Сообщение",g_in:"Управление:<br/>входящие",g_re:"Ответ в треде",g_ok:"Пометить «решено»"
   },
   tr:{
@@ -271,9 +343,17 @@ const LABELS = {
     m_ok:"Rezerv aktif",m_warn:"⚠ Uyar,<br/>ama izin ver (eksiye düşebilir)",
     m_consume:"Stoktan düşme:<br/>−stok · rezerv «harcandı»",m_release:"Rezerv iptali:<br/>malzeme yeniden müsait",
     m_stk:"Stok güncellendi",m_al:"Stok < minimum?",m_buy:"Satın alma zamanı",m_done:"Kart → Hazır",m_ret:"Kart → Sıraya",
-    r_mgmt:"Yönetim · Google ile giriş",r_gd:"Genel müdür",r_own:"Sahip (baba)",r_sl:"Atölye şefi",
-    r_shop:"Atölye · PIN ile giriş",r_sew:"Terzi",r_v1:"Tüm pano · siparişler<br/>stok · analitik · mesajlar",
-    r_v2:"Mobil görünüm:<br/>görevlerim · Al / Hazır",r_edge:"soru / sorun",
+    rc_admin:"Yönetim: Yönetici →<br/>Roller sayfasını açar",rc_new:"+ Yeni rol",
+    rc_form:"Ad + izin kutucukları:<br/>pano · siparişler · stok · analitik · ekip · mesajlar · yönetici",
+    rc_save:"Kaydet",rc_use:"Rol, kullanıcı<br/>oluştururken seçilebilir",rc_examples:"Örnek roller",
+    rc_ex_sew:"Terzi<br/>✓ pano (kendi kartları)",rc_ex_lead:"Atölye şefi<br/>✓ pano ✓ siparişler ✓ stok ✓ ekip",
+    rc_ex_new:"Depocu (yeni rol)<br/>✓ stok ✓ mesajlar",
+    st_seamstress:"Terzi",st_presence:"Burada / Burada değil<br/>(terzinin kendi check-in'i)",
+    st_availability:"Müsait / Müsait değil<br/>(yönetim kararı)",st_occupied_q:"Meşgul mü?",
+    st_reason_card:"«çalışmada» bir kart var",st_reason_task:"aktif elle görev",st_reason_none:"ikisi de yok",
+    st_busy:"Meşgul",st_free:"Boşta",st_mgr_sets:"Yönetim elle<br/>«meşgul» yapar",
+    st_task:"Görev oluşur:<br/>ad + not",st_seen:"Terzi görevi<br/>mobil görünümde görür",
+    st_close:"Kapatma<br/>(terzi veya yönetim)",
     g_s:"Terzi: soru/sorun<br/>(ops. kart üzerinde)",g_m:"Mesaj",g_in:"Yönetim:<br/>gelen kutusu",g_re:"Konuda yanıt",g_ok:"«Çözüldü» işaretle"
   },
   en:{
@@ -294,9 +374,17 @@ const LABELS = {
     m_ok:"Reservation active",m_warn:"⚠ Warn,<br/>but allow (can go negative)",
     m_consume:"Write-off:<br/>−stock · reservation “consumed”",m_release:"Release:<br/>material available again",
     m_stk:"Stock updated",m_al:"Stock < minimum?",m_buy:"Time to restock",m_done:"Card → Done",m_ret:"Card → Queue",
-    r_mgmt:"Management · Google login",r_gd:"General director",r_own:"Owner (father)",r_sl:"Shop lead",
-    r_shop:"Workshop · PIN login",r_sew:"Seamstress",r_v1:"Full board · orders<br/>stock · analytics · messages",
-    r_v2:"Mobile view:<br/>my tasks · Take / Done",r_edge:"question / issue",
+    rc_admin:"Management opens<br/>Admin → Roles",rc_new:"+ New role",
+    rc_form:"Name + permission checkboxes:<br/>board · orders · stock · analytics · team · messages · admin",
+    rc_save:"Save",rc_use:"Role available<br/>when creating a user",rc_examples:"Example roles",
+    rc_ex_sew:"Seamstress<br/>✓ board (own cards)",rc_ex_lead:"Shop lead<br/>✓ board ✓ orders ✓ stock ✓ team",
+    rc_ex_new:"Stock clerk (new role)<br/>✓ stock ✓ messages",
+    st_seamstress:"Seamstress",st_presence:"Present / Away<br/>(seamstress's own check-in)",
+    st_availability:"Available / Unavailable<br/>(management's decision)",st_occupied_q:"Occupied?",
+    st_reason_card:"has a card “in progress”",st_reason_task:"active manual task",st_reason_none:"neither",
+    st_busy:"Occupied",st_free:"Free",st_mgr_sets:"Management manually<br/>marks “occupied”",
+    st_task:"A task is created:<br/>title + comment",st_seen:"Seamstress sees the task<br/>in the mobile view",
+    st_close:"Closing<br/>(by seamstress or management)",
     g_s:"Seamstress: question/issue<br/>(opt. on a card)",g_m:"Message",g_in:"Management:<br/>inbox",g_re:"Reply in thread",g_ok:"Mark “resolved”"
   }
 };
@@ -362,19 +450,36 @@ function buildDiagrams(L){
   class W warn;`,
     roles:
 `flowchart TD
-  subgraph MGMT["${L.r_mgmt}"]
-    GD["${L.r_gd}"]
-    OWN["${L.r_own}"]
-    SL["${L.r_sl}"]
+  ADM["${L.rc_admin}"] --> NEW["${L.rc_new}"]
+  NEW --> FORM["${L.rc_form}"]
+  FORM --> SAVE["${L.rc_save}"]
+  SAVE --> USE["${L.rc_use}"]
+  subgraph EX["${L.rc_examples}"]
+    R1["${L.rc_ex_sew}"]
+    R2["${L.rc_ex_lead}"]
+    R3["${L.rc_ex_new}"]
   end
-  subgraph SHOP["${L.r_shop}"]
-    SEW["${L.r_sew}"]
-  end
-  MGMT --> V1["${L.r_v1}"]
-  SEW --> V2["${L.r_v2}"]
-  SEW -. "${L.r_edge}" .-> MGMT
-  classDef m fill:#eef3fb,stroke:#5b7aa8,color:#1d1a16;
-  class GD,OWN,SL m;`,
+  USE --> R1
+  USE --> R2
+  USE --> R3
+  classDef ex fill:#eef3fb,stroke:#5b7aa8,color:#1d1a16;
+  class R1,R2,R3 ex;`,
+    status:
+`flowchart TD
+  U["${L.st_seamstress}"] --> P["${L.st_presence}"]
+  U --> AV["${L.st_availability}"]
+  U --> OC{"${L.st_occupied_q}"}
+  OC -->|"${L.st_reason_card}"| BUSY["${L.st_busy}"]
+  OC -->|"${L.st_reason_task}"| BUSY
+  OC -->|"${L.st_reason_none}"| FREE["${L.st_free}"]
+  MGR["${L.st_mgr_sets}"] --> TASK["${L.st_task}"]
+  TASK --> BUSY
+  TASK --> VIEW["${L.st_seen}"]
+  VIEW --> CLOSE["${L.st_close}"]
+  CLOSE --> FREE
+  classDef busy fill:#fdeee0,stroke:#d08a3a,color:#1d1a16;
+  classDef free fill:#eaf6ec,stroke:#4f9d69,color:#1d1a16;
+  class BUSY busy; class FREE free;`,
     messages:
 `flowchart LR
   S["${L.g_s}"] --> M[("${L.g_m}")]
@@ -428,7 +533,11 @@ function applyLang(){
   document.getElementById('sub').textContent = u.sub;
   document.getElementById('detailHead').textContent = u.detailHead;
   document.getElementById('footer').innerHTML = u.footer;
-  document.querySelectorAll('.tab').forEach(t => t.textContent = u.tabs[t.dataset.tab]);
+  document.querySelectorAll('.tab').forEach(t => {
+    const label = t.querySelector('.sidenav-label');
+    if (label) { label.textContent = u.tabs[t.dataset.tab]; t.title = u.tabs[t.dataset.tab]; }
+    else t.textContent = u.tabs[t.dataset.tab];
+  });
   TABS.forEach(id => {
     const s = u.sections[id];
     const sec = document.getElementById(id);
@@ -457,6 +566,15 @@ document.querySelectorAll('#langsw button').forEach(b => b.addEventListener('cli
   localStorage.setItem("atelier_lang", lang);
   applyLang();
 }));
+
+(function(){
+  const sb = document.getElementById('sidebar');
+  if (localStorage.getItem('atelier_map_sidebar') === '1') sb.classList.add('expanded');
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    const on = sb.classList.toggle('expanded');
+    localStorage.setItem('atelier_map_sidebar', on ? '1' : '0');
+  });
+})();
 
 applyLang();
 </script>
